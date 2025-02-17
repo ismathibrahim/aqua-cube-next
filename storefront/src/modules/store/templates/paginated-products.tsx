@@ -3,6 +3,7 @@ import { getRegion } from "@lib/data/regions"
 import ProductPreview from "@modules/products/components/product-preview"
 import { Pagination } from "@modules/store/components/pagination"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
+import Link from "next/link"
 
 const PRODUCT_LIMIT = 12
 
@@ -79,6 +80,8 @@ export default async function PaginatedProducts({
             </li>
           )
         })}
+
+
       </ul>
       {totalPages > 1 && (
         <Pagination
@@ -86,6 +89,21 @@ export default async function PaginatedProducts({
           page={page}
           totalPages={totalPages}
         />
+      )}
+
+{products.length === 0 && (
+        <div className="flex flex-col items-center justify-center w-full bg-gray-50 rounded-2xl py-10">
+          <h1 className="text-xl-semi text-gray-700">No products found</h1>
+          <p className="text-small-regular text-gray-700">
+            There are no products in this category yet.
+          </p>
+          <Link
+            href="/shop"
+            className="mt-4 underline text-base-regular text-gray-900"
+          >
+            Go to shop page
+          </Link>
+        </div>
       )}
     </>
   )

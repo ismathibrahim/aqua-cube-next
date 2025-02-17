@@ -133,9 +133,9 @@ export default function ProductActions({
           )}
         </div>
 
-        <ProductPrice product={product} variant={selectedVariant} />
+        {/* <ProductPrice product={product} variant={selectedVariant} /> */}
 
-        <Button
+        {/* <Button
           onClick={handleAddToCart}
           disabled={!inStock || !selectedVariant || !!disabled || isAdding}
           variant="primary"
@@ -148,8 +148,8 @@ export default function ProductActions({
             : !inStock
             ? "Out of stock"
             : "Add to cart"}
-        </Button>
-        <MobileActions
+        </Button> */}
+        {/* <MobileActions
           product={product}
           variant={selectedVariant}
           options={options}
@@ -159,7 +159,7 @@ export default function ProductActions({
           isAdding={isAdding}
           show={!inView}
           optionsDisabled={!!disabled || isAdding}
-        />
+        /> */}
       </div>
     </>
   )

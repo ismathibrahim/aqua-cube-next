@@ -61,12 +61,12 @@ export default async function RelatedProducts({
         <span className="text-base-regular text-gray-600 mb-6">
           Related products
         </span>
-        <p className="text-2xl-regular text-ui-fg-base max-w-lg">
+        <p className="text-2xl-regular text-neutral-800 max-w-lg">
           You might also want to check out these products.
         </p>
       </div>
 
-      <ul className="grid grid-cols-2 small:grid-cols-3 medium:grid-cols-4 gap-x-6 gap-y-8">
+      <ul className="grid sm:grid-cols-2 medium:grid-cols-3 large:grid-cols-4 gap-x-6 gap-y-8">
         {products.map((product) => (
           <li key={product.id}>
             {region && <Product region={region} product={product} />}

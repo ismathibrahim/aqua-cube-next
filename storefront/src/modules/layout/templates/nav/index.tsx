@@ -1,70 +1,257 @@
-import { Suspense } from "react"
+"use client"
 
-import { listRegions } from "@lib/data/regions"
-import { StoreRegion } from "@medusajs/types"
-import LocalizedClientLink from "@modules/common/components/localized-client-link"
-import CartButton from "@modules/layout/components/cart-button"
-import SideMenu from "@modules/layout/components/side-menu"
+import useToggleState from "@lib/hooks/use-toggle-state"
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@modules/common/components/navigation-menu"
+import CategoryCard from "@modules/home/components/categories-grid/category-card"
+import CartDropdown from "@modules/layout/components/cart-dropdown"
+import React, { useState } from "react"
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useMotionValueEvent,
+} from "framer-motion"
+import { useProductCategories } from "medusa-react"
+import Link from "next/link"
 
-export default async function Nav() {
-  const regions = await listRegions().then((regions: StoreRegion[]) => regions)
+import CategoryImage from "@assets/images/category-images/placeholder.png"
+import { MobileMenuButton } from "@modules/layout/components/mobile-menu-button"
+import MobileNav from "./mobile-nav"
+import { getCategoriesList } from "@lib/data/categories"
+
+const BRANDS = [
+  "Aerofoils",
+  "Cabrinha",
+  "Connelly",
+  "Duotone",
+  "Esurf",
+  "Fanatic",
+  "Firewire",
+  "Fliteboard",
+  "ION",
+  "JP Australia",
+  "Neilpryde",
+  "North",
+  "Proline",
+  "Seabob",
+  "Tahe",
+  "Topcat",
+  "Wow Tubes",
+]
+
+interface Props {
+  categories: any
+}
+
+const Nav =  ({categories}:Props) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+
+  
+  const parentCategories =
+  categories?.filter(
+      (c:any) => !c.parent_category?.id && c.handle !== "brands"
+    ) || []
+
+  const [hoveredCategory, setHoveredCategory] = useState(
+    parentCategories?.[0] || null
+  )
+
+  const { scrollYProgress } = useScroll()
+
+  const [visible, setVisible] = useState(true)
+
+  useMotionValueEvent(scrollYProgress, "change", (current) => {
+    // Check if current is not undefined and is a number
+    if (typeof current === "number") {
+      let direction = current! - scrollYProgress.getPrevious()!
+
+      if (scrollYProgress.get() < 0.05) {
+        setVisible(true)
+      } else {
+        if (direction < 0) {
+          setVisible(true)
+        } else {
+          if (!mobileMenuOpen) {
+            setVisible(false)
+          }
+        }
+      }
+    }
+  })
 
   return (
-    <div className="sticky top-0 inset-x-0 z-50 group">
-      <header className="relative h-16 mx-auto border-b duration-200 bg-white border-ui-border-base">
-        <nav className="content-container txt-xsmall-plus text-ui-fg-subtle flex items-center justify-between w-full h-full text-small-regular">
-          <div className="flex-1 basis-0 h-full flex items-center">
-            <div className="h-full">
-              <SideMenu regions={regions} />
+    <AnimatePresence mode="wait">
+      <motion.div
+        initial={{
+          opacity: 1,
+          y: 0,
+        }}
+        animate={{
+          y: visible ? 0 : -100,
+          opacity: visible ? 1 : 0,
+        }}
+        transition={{
+          duration: 0.2,
+        }}
+        className={`sticky top-0 inset-x-0 z-50 group font-sans  flex w-full p-2 h-16`}
+      >
+        <header
+          className={`relative px-4 sm:px-6 mx-auto rounded-xl w-full bg-white shadow-sm border border-gray-200 duration-300  ${
+            mobileMenuOpen ? "h-[98vh] " : "h-12"
+          }`}
+        >
+          <div
+            className={` text-[#1d1d1d] flex items-center justify-between w-full h-11 relative gap-3 duration-300`}
+          >
+            <div className="flex items-center h-full">
+              <Link
+                href="/"
+                className="text-base font-bold hover:bg-blend-darken"
+              >
+                Aqua Cube
+              </Link>
             </div>
-          </div>
 
-          <div className="flex items-center h-full">
-            <LocalizedClientLink
-              href="/"
-              className="txt-compact-xlarge-plus hover:text-ui-fg-base uppercase"
-              data-testid="nav-store-link"
-            >
-              Medusa Store
-            </LocalizedClientLink>
-          </div>
+            <NavigationMenu className="hidden lg:flex w-full lg:px-36 max-w-lg">
+              <NavigationMenuList className="text-sm flex items-center">
+                {/* <NavigationMenuItem>
+                <Link href="/" legacyBehavior passHref>
+                  <NavigationMenuLink>
+                    Home
+                  </NavigationMenuLink>
+                </Link>
+              </NavigationMenuItem> */}
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>Shop</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="grid gap-3 p-6 md:w-[400px] lg:w-[700px] lg:grid-cols-[.5fr_1fr] ">
+                      <ul className="grid grid-cols-1 gap-2">
+                        {parentCategories?.map((c) => (
+                          <li
+                            className="flex flex-col gap-2 text-ui-fg-subtle text-sm "
+                            key={c.id}
+                          >
+                            <Link href={`/${c.handle}`}>
+                              <NavigationMenuLink
+                                className={`block  px-4 py-2 rounded-md ${
+                                  hoveredCategory?.id === c.id
+                                    ? "bg-gray-100 text-ui-fg-base"
+                                    : ""
+                                }`}
+                                onMouseOver={() => setHoveredCategory(c)}
+                              >
+                                {c.name}
+                              </NavigationMenuLink>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="">
+                        {hoveredCategory && (
+                          <ul className="grid grid-cols-2 gap-2">
+                            {hoveredCategory?.category_children?.map((c) => (
+                              <li
+                                className="flex flex-col gap-2 text-ui-fg-subtle text-sm "
+                                key={c.id}
+                              >
+                                <NavigationMenuLink className="h-36">
+                                  <CategoryCard
+                                    handle={c.handle}
+                                    name={c.name}
+                                    thumbnail={CategoryImage}
+                                    className="rounded-2xl"
+                                  />
+                                </NavigationMenuLink>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>Brands</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="grid gap-3 p-6 md:w-[400px] lg:w-[700px]">
+                      <ul className="grid grid-cols-3 gap-3">
+                        {BRANDS?.map((brand) => {
+                          return (
+                            <li
+                              className="flex flex-col gap-2 text-ui-fg-subtle text-sm "
+                              key={brand}
+                            >
+                              {/* <Link href={`/${brand}`}> */}
+                              <NavigationMenuLink className="block hover:text-ui-fg-base px-4 py-2 rounded-md hover:bg-gray-100">
+                                {brand}
+                              </NavigationMenuLink>
+                              {/* </Link> */}
+                            </li>
+                          )
+                        })}
+                      </ul>
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link href="/contact" legacyBehavior passHref>
+                    <NavigationMenuLink className="px-4 py-2 hover:bg-gray-100 rounded-lg">
+                      Contact
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
 
-          <div className="flex items-center gap-x-6 h-full flex-1 basis-0 justify-end">
-            <div className="hidden small:flex items-center gap-x-6 h-full">
-              {process.env.NEXT_PUBLIC_FEATURE_SEARCH_ENABLED && (
-                <LocalizedClientLink
-                  className="hover:text-ui-fg-base"
-                  href="/search"
-                  scroll={false}
-                  data-testid="nav-search-link"
-                >
-                  Search
-                </LocalizedClientLink>
-              )}
-              <LocalizedClientLink
-                className="hover:text-ui-fg-base"
+            <div className="flex items-center gap-x-6 h-full justify-end">
+              {/* <div className="hidden small:flex items-center gap-x-6 h-full">
+                {process.env.FEATURE_SEARCH_ENABLED && (
+                  <DesktopSearchModal
+                    state={searchModalState}
+                    close={searchModalClose}
+                    open={searchModalOpen}
+                  />
+                )}
+                <Link
+                className="hover:text-ui-fg-disabled text-sm"
                 href="/account"
-                data-testid="nav-account-link"
               >
                 Account
-              </LocalizedClientLink>
+              </Link>
+              </div> */}
+
+              <div onClick={() => setMobileMenuOpen(false)}>
+                <CartDropdown />
+              </div>
+              <div className="-mr-2 lg:hidden">
+                <MobileMenuButton
+                  crossed={mobileMenuOpen}
+                  setCrossedState={setMobileMenuOpen}
+                />
+              </div>
             </div>
-            <Suspense
-              fallback={
-                <LocalizedClientLink
-                  className="hover:text-ui-fg-base flex gap-2"
-                  href="/cart"
-                  data-testid="nav-cart-link"
-                >
-                  Cart (0)
-                </LocalizedClientLink>
-              }
-            >
-              <CartButton />
-            </Suspense>
           </div>
-        </nav>
-      </header>
-    </div>
+
+          <div className={` h-[92%] w-full duration-300 `}>
+            {mobileMenuOpen && (
+              <MobileNav
+                categories={parentCategories}
+                brands={BRANDS}
+                closeMobileMenu={() => setMobileMenuOpen(false)}
+              />
+            )}
+          </div>
+        </header>
+      </motion.div>
+    </AnimatePresence>
   )
 }
+
+export default Nav
