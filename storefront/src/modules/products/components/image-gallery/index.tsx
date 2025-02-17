@@ -14,7 +14,7 @@ const ImageGallery = ({ images }: ImageGalleryProps) => {
   const screen = useScreen()
   return (
     <div className="flex items-start relative">
-       {screen.width < 1024 ? (
+       {screen?.width < 1024 ? (
         <Carousel containerClassName="gap-3 sm:gap-4 py-1">
           {images.map((image, index) => {
             return (
