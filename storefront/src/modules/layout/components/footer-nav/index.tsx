@@ -30,6 +30,8 @@ interface Props {
 
 const FooterNav = async ({categories}:Props) => {
 
+  const brands = categories?.find((c:any) => c.handle === "brands");
+
   return (
     <div className="bg-[#151515] w-full">
       <div className="max-w-[90vw] mx-auto flex flex-col">
@@ -78,7 +80,7 @@ const FooterNav = async ({categories}:Props) => {
               <ul
                 className={"grid grid-cols-1 gap-y-2 text-gray-400 text-base"}
               >
-                {BRANDS.map((brand) => (
+                {brands?.children?.map((brand: any) => (
                   <li key={brand}>
                     <p
                       className="hover:text-gray-500"

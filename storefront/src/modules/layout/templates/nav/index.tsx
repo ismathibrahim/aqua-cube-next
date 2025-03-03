@@ -138,11 +138,11 @@ const Nav =  ({categories}:Props) => {
                             className="flex flex-col gap-2 text-ui-fg-subtle text-sm "
                             key={c.id}
                           >
-                            <Link href={`/${c.handle}`}>
+                            <Link href={`/categories/${c .handle}`}>
                               <NavigationMenuLink
                                 className={`block  px-4 py-2 rounded-md ${
                                   hoveredCategory?.id === c.id
-                                    ? "bg-gray-100 text-ui-fg-base"
+                                    ? "bg-gray-100 text-neutral-800"
                                     : ""
                                 }`}
                                 onMouseOver={() => setHoveredCategory(c)}
@@ -188,11 +188,11 @@ const Nav =  ({categories}:Props) => {
                               className="flex flex-col gap-2 text-ui-fg-subtle text-sm "
                               key={brand}
                             >
-                              {/* <Link href={`/${brand}`}> */}
-                              <NavigationMenuLink className="block hover:text-ui-fg-base px-4 py-2 rounded-md hover:bg-gray-100">
+                              <Link href={`/categories/${brand?.toLowerCase()}`}>
+                              <NavigationMenuLink className="block hover:text-neutral-800 px-4 py-2 rounded-md hover:bg-gray-100">
                                 {brand}
                               </NavigationMenuLink>
-                              {/* </Link> */}
+                              </Link>
                             </li>
                           )
                         })}
