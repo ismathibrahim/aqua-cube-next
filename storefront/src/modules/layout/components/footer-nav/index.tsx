@@ -23,6 +23,7 @@ const BRANDS = [
   "Tahe",
   "Topcat",
   "Wow Tubes",
+  "AWAKE",
 ]
 interface Props {
   categories: any
