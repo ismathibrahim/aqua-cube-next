@@ -128,6 +128,9 @@ const medusaConfig = {
         ],
       },
     }] : []),
+    
+  ],
+  plugins: [
     ...(MEILISEARCH_HOST && MEILISEARCH_API_KEY ? [{
       resolve: '@rokmohar/medusa-plugin-meilisearch',
       options: {
@@ -146,8 +149,7 @@ const medusaConfig = {
         }
       }
     }] : [])
-  ],
-  plugins: []
+  ]
 };
 
 console.log(JSON.stringify(medusaConfig, null, 2));
